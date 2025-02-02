@@ -3,57 +3,92 @@ using UnityEngine.Assertions;
 
 namespace Boids {
 public static class BoidsMath {
-  public static Vector3[] GetAvoidanceVector(Vector3[] objs) {
-    Vector3[] sum = new Vector3[objs.Length];
+  public static BComponent<Vector3>
+  GetAvoidanceVector(BComponent<Vector3> objs, BComponent<Vector3> output) {
     float dist = 0.0f;
     // Calculates the sum around its neighbor except itself
     for (int i = 0; i < objs.Length; i++) {
-      sum[i] = Vector3.zero;
+      output.Data[i] = Vector3.zero;
       for (int l = 0; l < i; l++) {
-        dist = Vector3.Distance(objs[i], objs[l]);
-        sum[i] += (objs[i] - objs[l]) / Mathf.Sqrt(dist);
+        dist = Vector3.Distance(objs.Data[i], objs.Data[l]);
+        output.Data[i] += (objs.Data[i] - objs.Data[l]) / Mathf.Sqrt(dist);
       }
       for (int r = i + 1; r < objs.Length; r++) {
-        dist = Vector3.Distance(objs[i], objs[r]);
-        sum[i] += (objs[i] - objs[r]) / Mathf.Sqrt(dist);
+        dist = Vector3.Distance(objs.Data[i], objs.Data[r]);
+        output.Data[i] += (objs.Data[i] - objs.Data[r]) / Mathf.Sqrt(dist);
       }
     }
-    return sum;
+    return output;
   }
 
-  public static Vector3[] GetCoheranceVector(Vector3[] objs) {
-    Vector3[] res = new Vector3[objs.Length];
+  public static BComponent<Vector3>
+  GetCoheranceVector(BComponent<Vector3> objs, BComponent<Vector3> output) {
     for (int i = 0; i < objs.Length; i++) {
       Vector3 sum = Vector3.zero;
       for (int j = 0; j < objs.Length; j++) {
-        sum += objs[j];
+        sum += objs.Data[j];
       }
-      res[i] = sum / objs.Length;
+      output.Data[i] = sum / objs.Length;
     }
-    return res;
+    return output;
   }
 
-  public static Vector3[] GetAlignmentVector(Vector3[] objs) {
-    Vector3[] res = new Vector3[objs.Length];
+  public static BComponent<Vector3>
+  GetAlignmentVector(BComponent<Vector3> objs, BComponent<Vector3> output) {
     for (int i = 0; i < objs.Length; i++) {
       Vector3 sum = Vector3.zero;
       for (int j = 0; j < objs.Length; j++) {
-        sum += objs[j];
+        sum += objs.Data[j];
       }
-      res[i] = sum / objs.Length;
+      output.Data[i] = sum / objs.Length;
     }
-    return res;
+    return output;
   }
 
-  public static Vector3[] Sum(Vector3[] left, Vector3[] right) {
+  public static BComponent<Vector3> Sum(BComponent<Vector3> left,
+                                        BComponent<Vector3> right,
+                                        BComponent<Vector3> output) {
     Assert.AreEqual(left.Length, right.Length);
     int count = left.Length;
-    Vector3[] res = new Vector3[count];
 
     for (int i = 0; i < left.Length; i++) {
-      res[i] = left[i] + right[i];
+      output.Data[i] = left.Data[i] + right.Data[i];
     }
-    return res;
+    return output;
+  }
+  public static BComponent<Vector3> Sub(BComponent<Vector3> left,
+                                        BComponent<Vector3> right,
+                                        BComponent<Vector3> output) {
+    Assert.AreEqual(left.Length, right.Length);
+    int count = left.Length;
+
+    for (int i = 0; i < left.Length; i++) {
+      output.Data[i] = left.Data[i] - right.Data[i];
+    }
+    return output;
+  }
+
+  public static BComponent<Vector3> Scale(BComponent<float> scalar,
+                                          BComponent<Vector3> vector,
+                                          BComponent<Vector3> output) {
+    for (int i = 0; i < scalar.Length; i++) {
+      output.Data[i] = scalar.Data[i] * vector.Data[i];
+    }
+    return output;
+  }
+  public static BComponent<Vector3>
+  Scale(float scalar, BComponent<Vector3> vector, BComponent<Vector3> output) {
+    for (int i = 0; i < vector.Length; i++) {
+      output.Data[i] = scalar * vector.Data[i];
+    }
+    return output;
+  }
+  public static BComponent<Vector3> Normalize(BComponent<Vector3> vector,
+                                              BComponent<Vector3> output) {
+    for (int i = 0; i < vector.Length; i++) {
+      output.Data[i] = vector.Data[i].normalized;
+    }
+    return output;
   }
 }
 }
