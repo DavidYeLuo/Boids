@@ -13,6 +13,7 @@ public class BoidsManager {
   }
   /// We're using this as 2D. Meaning the z-axis is 0.0f
   /// StartRange and EndRange are inclusive numbers for rng
+  /// NxN box
   public static BComponent<Vector3>
   GetRandVectors(float startRange, float endRange, BComponent<Vector3> output) {
     for (int i = 0; i < output.Length; i++) {
@@ -22,6 +23,20 @@ public class BoidsManager {
     }
     return output;
   }
+  /// We're using this as 2D. Meaning the z-axis is 0.0f
+  /// StartRange and EndRange are inclusive numbers for rng
+  /// NxN box
+  public static BComponent<Vector3> GetRandVectors(float startX, float endX,
+                                                   float startY, float endY,
+                                                   BComponent<Vector3> output) {
+    for (int i = 0; i < output.Length; i++) {
+      float rx = Random.Range(startX, endX);
+      float ry = Random.Range(startY, endY);
+      output.Data[i] = new Vector3(rx, ry, 0.0f);
+    }
+    return output;
+  }
+
   public static BComponent<Quaternion>
   GetIdentityQuaternions(int numOfQuaternions, BComponent<Quaternion> output) {
     for (int i = 0; i < numOfQuaternions; i++) {

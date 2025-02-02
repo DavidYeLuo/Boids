@@ -14,6 +14,10 @@ public class ECSPrototype : MonoBehaviour {
   public float coheranceFactor = 4.0f;
   public float alignmentFactor = 3.0f;
   public float avoidanceFactor = 4.0f;
+  [Space]
+  /// Defaults to 1080p
+  public float SCREEN_WIDTH = 19.20f;
+  public float SCREEN_HEIGHT = 10.8f;
 
   private List<GameObject> boids;
   private BComponent<Vector3> positions;
@@ -41,9 +45,10 @@ public class ECSPrototype : MonoBehaviour {
       boids.Add(Instantiate(boidPrefab));
     }
 
-    BoidsManager.GetRandVectors(0, 10.0f, positions);
+    BoidsManager.GetRandVectors(-SCREEN_WIDTH / 2, SCREEN_WIDTH / 2,
+                                -SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2,
+                                positions);
     BoidsManager.GetRandVectors(-1.0f, 1.0f, velocities);
-    // BoidsMath.Sum(1.0f, velocities, velocities);
     BoidsMath.Normalize(velocities, velocities);
     BoidsMath.Scale(speed, velocities, velocities);
   }
@@ -97,6 +102,18 @@ public class ECSPrototype : MonoBehaviour {
       Debug.DrawLine(positions.Data[i], positions.Data[i] + alignment.Data[i],
                      Color.blue);
     }
+    // Debug.DrawLine(new Vector3(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
+    //                new Vector3(SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
+    //                Color.green);
+    // Debug.DrawLine(new Vector3(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
+    //                new Vector3(-SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
+    //                Color.green);
+    // Debug.DrawLine(new Vector3(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
+    //                new Vector3(SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
+    //                Color.green);
+    // Debug.DrawLine(new Vector3(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
+    //                new Vector3(-SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
+    //                Color.green);
   }
 }
 }

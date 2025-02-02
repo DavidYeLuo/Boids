@@ -491,8 +491,10 @@ MonoBehaviour:
   speed: 1
   detectionDistance: 5
   coheranceFactor: 2
-  alignmentFactor: 1
-  avoidanceFactor: 2
+  alignmentFactor: 2
+  avoidanceFactor: 3
+  SCREEN_WIDTH: 19.2
+  SCREEN_HEIGHT: 10.8
   numJumpFrame: 5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
