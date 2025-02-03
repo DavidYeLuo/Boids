@@ -90,5 +90,14 @@ public static class BoidsMath {
     }
     return output;
   }
+  public static BComponent<Vector3> WrapBetween(float maxX, float maxY,
+                                                BComponent<Vector3> vector,
+                                                BComponent<Vector3> output) {
+    for (int i = 0; i < vector.Length; i++) {
+      output.Data[i].x = Mathf.Repeat(vector.Data[i].x, maxX);
+      output.Data[i].y = Mathf.Repeat(vector.Data[i].y, maxY);
+    }
+    return output;
+  }
 }
 }

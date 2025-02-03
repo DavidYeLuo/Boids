@@ -387,7 +387,7 @@ Transform:
   m_GameObject: {fileID: 623245137}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 9.6, y: 5.4, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -487,12 +487,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 6687706912903739600, guid: 7c73f95195e61491d8e6bc0e76301fc0, type: 3}
-  numBoids: 200
+  numBoids: 50
   speed: 1
   detectionDistance: 5
-  coheranceFactor: 2
-  alignmentFactor: 2
-  avoidanceFactor: 3
+  coheranceFactor: 1
+  alignmentFactor: 1
+  avoidanceFactor: 1
   SCREEN_WIDTH: 19.2
   SCREEN_HEIGHT: 10.8
   numJumpFrame: 5

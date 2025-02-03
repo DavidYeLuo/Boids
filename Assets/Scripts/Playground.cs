@@ -45,8 +45,10 @@ public class ECSPrototype : MonoBehaviour {
       boids.Add(Instantiate(boidPrefab));
     }
 
-    BoidsManager.GetRandVectors(-SCREEN_WIDTH / 2, SCREEN_WIDTH / 2,
-                                -SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2,
+    /// We're using (0, SCREEN_WIDTH), (0, SCREEN_HEIGHT)
+    /// because the Mathf.Repeat only works on positive numbers.
+    /// We use Mathf.Repeat to wrap positions around the screen.
+    BoidsManager.GetRandVectors(0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT,
                                 positions);
     BoidsManager.GetRandVectors(-1.0f, 1.0f, velocities);
     BoidsMath.Normalize(velocities, velocities);
@@ -80,6 +82,7 @@ public class ECSPrototype : MonoBehaviour {
     BoidsMath.Scale(speed * Time.deltaTime, velocities, velocities);
 
     BoidsMath.Sum(positions, velocities, positions); // Updates position
+    BoidsMath.WrapBetween(SCREEN_WIDTH, SCREEN_HEIGHT, positions, positions);
 
     for (int i = 0; i < numBoids; i++) {
       boids[i].transform.position = positions.Data[i];
@@ -102,18 +105,6 @@ public class ECSPrototype : MonoBehaviour {
       Debug.DrawLine(positions.Data[i], positions.Data[i] + alignment.Data[i],
                      Color.blue);
     }
-    // Debug.DrawLine(new Vector3(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
-    //                new Vector3(SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
-    //                Color.green);
-    // Debug.DrawLine(new Vector3(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
-    //                new Vector3(-SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
-    //                Color.green);
-    // Debug.DrawLine(new Vector3(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
-    //                new Vector3(SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2),
-    //                Color.green);
-    // Debug.DrawLine(new Vector3(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
-    //                new Vector3(-SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
-    //                Color.green);
   }
 }
 }

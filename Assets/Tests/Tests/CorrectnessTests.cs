@@ -194,4 +194,23 @@ public class CorrectnessTests {
       Assert.Less(Mathf.Abs(buffer.z), marginOfError.z);
     }
   }
+  [Test]
+  public void WrapPosition() {
+    Vector3 marginOfError = new Vector3(0.01f, 0.01f, 0.01f);
+    Vector3[] vector = { new Vector3(12.0f, 0.0f, 0.0f),
+                         new Vector3(0.0f, 12.0f, 0.0f) };
+    Vector3[] expected = { new Vector3(2.0f, 0.0f, 0.0f),
+                           new Vector3(0.0f, 2.0f, 0.0f) };
+    BComponent<Vector3> vectorComponent = new BComponent<Vector3>(vector, 2);
+    BComponent<Vector3> resultComponent =
+        new BComponent<Vector3>(new Vector3[2], 2);
+    BoidsMath.WrapBetween(10.0f, 10.0f, vectorComponent, resultComponent);
+
+    for (int i = 0; i < 2; i++) {
+      Vector3 buffer = expected[i] - resultComponent.Data[i];
+      Assert.Less(Mathf.Abs(buffer.x), marginOfError.x);
+      Assert.Less(Mathf.Abs(buffer.y), marginOfError.y);
+      Assert.Less(Mathf.Abs(buffer.z), marginOfError.z);
+    }
+  }
 }
