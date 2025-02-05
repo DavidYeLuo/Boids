@@ -22,13 +22,15 @@ public static class BoidsMath {
   }
 
   public static BComponent<Vector3>
-  GetCoheranceVector(BComponent<Vector3> objs, BComponent<Vector3> output) {
-    for (int i = 0; i < objs.Length; i++) {
-      Vector3 sum = Vector3.zero;
-      for (int j = 0; j < objs.Length; j++) {
-        sum += objs.Data[j];
-      }
-      output.Data[i] = sum / objs.Length;
+  GetCoheranceVector(BComponent<Vector3> positions,
+                     BComponent<Vector3> output) {
+    Vector3 averagePosition = Vector3.zero;
+    for (int i = 0; i < positions.Length; i++) {
+      averagePosition += positions.Data[i];
+    }
+    averagePosition = averagePosition / positions.Length;
+    for (int i = 0; i < positions.Length; i++) {
+      output.Data[i] = averagePosition - positions.Data[i];
     }
     return output;
   }

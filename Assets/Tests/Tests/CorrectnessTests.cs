@@ -60,7 +60,7 @@ public class CorrectnessTests {
 
     Vector3[] samples = { new Vector3(0.0f, 0.0f), new Vector3(1.0f, 0.0f) };
     Vector3[] expectedVecs = { new Vector3(0.5f, 0.0f),
-                               new Vector3(0.5f, 0.0f) };
+                               new Vector3(-0.5f, 0.0f) };
 
     BComponent<Vector3> sampleComponent = new BComponent<Vector3>(samples, 2);
     BComponent<Vector3> resultComponent =
@@ -122,7 +122,7 @@ public class CorrectnessTests {
     Vector3 marginOfError = new Vector3(0.01f, 0.01f, 0.01f);
 
     Vector3[] samples = { new Vector3(0.0f, 0.0f), new Vector3(1.0f, 0.0f) };
-    Vector3[] expected = { new Vector3(0.0f, 0.0f), new Vector3(2.0f, 0.0f) };
+    Vector3[] expected = { new Vector3(0.0f, 0.0f), new Vector3(1.0f, 0.0f) };
     BComponent<Vector3> sampleComponent = new BComponent<Vector3>(samples, 2);
     BComponent<Vector3> avoidanceComponent =
         new BComponent<Vector3>(new Vector3[2], 2);
@@ -135,7 +135,7 @@ public class CorrectnessTests {
     BoidsMath.GetAvoidanceVector(sampleComponent,
                                  avoidanceComponent); // [-1, 0], [1, 0]
     BoidsMath.GetCoheranceVector(sampleComponent,
-                                 coheranceComponent); // [0.5, 0], [0.5, 0]
+                                 coheranceComponent); // [0.5, 0], [-0.5, 0]
     BoidsMath.GetAlignmentVector(sampleComponent,
                                  alignmentComponent); // [0.5, 0], [0.5, 0]
     BoidsMath.Sum(avoidanceComponent, coheranceComponent, resultComponent);

@@ -64,9 +64,6 @@ public class ECSPrototype : MonoBehaviour {
     /// Calculates direction
     BoidsMath.GetAvoidanceVector(positions, avoidance);
     BoidsMath.GetCoheranceVector(positions, coherance);
-    BoidsMath.Sub(
-        coherance, positions,
-        coherance); // TODO: Incorporate this ooperation to coherance vector
     BoidsMath.GetAlignmentVector(velocities, alignment);
     BoidsMath.Normalize(avoidance, avoidance);
     BoidsMath.Normalize(coherance, coherance);
