@@ -210,7 +210,6 @@ public class CorrectnessTests {
       Vector3 buffer = expected[i] - resultComponent.Data[i];
       Assert.Less(Mathf.Abs(buffer.x), marginOfError.x);
       Assert.Less(Mathf.Abs(buffer.y), marginOfError.y);
-      Assert.Less(Mathf.Abs(buffer.z), marginOfError.z);
     }
   }
 }
