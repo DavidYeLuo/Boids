@@ -18,9 +18,6 @@ public class SpatialPartitioner<T> {
     get { return (int)(ScreenHeight / SpaceUnit); }
   }
 
-  private BComponent<T>[
-    ,
-  ] space;
   private BComponent<int>[
     ,
   ] indexMap;
@@ -35,39 +32,73 @@ public class SpatialPartitioner<T> {
     this.SpaceMaxEntity = space_max_unit;
 
     /// We add 1 to row and col to include (0,0) aswell
-    indexMap = new BComponent<int>[MaxRowIndex + 1, MaxColIndex + 1];
-    space = new BComponent<T>[MaxRowIndex + 1, MaxColIndex + 1];
-    for (int _row = 0; _row <= MaxRowIndex; _row++) {
-      for (int _col = 0; _col <= MaxColIndex; _col++) {
-        space[_row, _col] = new BComponent<T>(new T[SpaceMaxEntity], 0);
-        indexMap[_row, _col] = new BComponent<int>(new int[SpaceMaxEntity], 0);
-      }
-    }
+    indexMap = MallocSpace<int>();
   }
 
-  // Returns the up to date list
-  private BComponent<K> Add<K>(BComponent<K> component, K element) {
-    component.Data[component.Length] = element;
-    component.Length++;
-    return component;
-  }
-  public BComponent<T>[
+  public BComponent<K>[
     ,
-  ] Partition(BComponent<Vector3> positions, BComponent<T> data) {
+  ] MallocSpace<K>() {
+    BComponent<K>[
+      ,
+    ] ret = new BComponent<K>[MaxRowIndex + 1, MaxColIndex + 1];
+    for (int _row = 0; _row <= MaxRowIndex; _row++) {
+      for (int _col = 0; _col <= MaxColIndex; _col++) {
+        ret[_row, _col] = new BComponent<K>(new K[SpaceMaxEntity], 0);
+      }
+    }
+    return ret;
+  }
+
+  public BComponent<int>[
+    ,
+  ] ResetIndex() {
+    for (int row = 0; row <= MaxRowIndex; row++) {
+      for (int col = 0; col <= MaxColIndex; col++) {
+        indexMap[row, col].Length = 0;
+      }
+    }
+    return indexMap;
+  }
+  public BComponent<int>[
+    ,
+  ] UpdateIndex(BComponent<Vector3> positions) {
     for (int i = 0; i < positions.Length; i++) {
       int row = (int)(positions.Data[i].x / SpaceUnit);
       int col = (int)(positions.Data[i].y / SpaceUnit);
-      indexMap[row, col] = Add<int>(indexMap[row, col], i);
-      space[row, col] = Add<T>(space[row, col], data.Data[i]);
+      int _length = indexMap[row, col].Length;
+      indexMap[row, col].Data[_length] = i;
+      indexMap[row, col].Length++;
     }
-    return this.space;
+    return indexMap;
   }
 
-  public void WriteTo(BComponent<T> buffer) {
+  public BComponent<T>[
+    ,
+  ] Partition(BComponent<T> data,
+              BComponent<T>[
+                ,
+              ] output) {
+    for (int row = 0; row < MaxRowIndex; row++) {
+      for (int col = 0; col < MaxColIndex; col++) {
+        output[row, col].Length = indexMap[row, col].Length;
+        for (int i = 0; i < output[row, col].Length; i++) {
+          output[row, col].Data[i] = data.Data[indexMap[row, col].Data[i]];
+        }
+      }
+    }
+    return output;
+  }
+
+  public void Write(
+      BComponent<T>[
+        ,
+      ] writeFrom,
+      BComponent<T> writeTo) {
     for (int row = 0; row <= MaxRowIndex; row++) {
       for (int col = 0; col <= MaxColIndex; col++) {
-        for (int i = 0; i < space[row, col].Length; i++) {
-          buffer.Data[indexMap[row, col].Data[i]] = space[row, col].Data[i];
+        for (int i = 0; i < writeFrom[row, col].Length; i++) {
+          writeTo.Data[indexMap[row, col].Data[i]] =
+              writeFrom[row, col].Data[i];
         }
       }
     }
