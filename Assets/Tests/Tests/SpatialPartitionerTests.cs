@@ -12,8 +12,8 @@ public class SpatialPartitionerTests {
     float screenWidth = 19.2f;
     float screenHeight = 10.8f;
     int maxEntity = 10;
-    SpatialPartitioner<Vector3> sp = new SpatialPartitioner<Vector3>(
-        spaceUnit, screenWidth, screenHeight, maxEntity);
+    SpatialPartitioner sp =
+        new SpatialPartitioner(spaceUnit, screenWidth, screenHeight, maxEntity);
     Assert.AreEqual(spaceUnit, sp.SpaceUnit,
                     "Space unit isn't initialized accordingly");
     Assert.AreEqual(screenWidth, sp.ScreenWidth,
@@ -35,8 +35,8 @@ public class SpatialPartitionerTests {
                       new Vector3(2.5f, 2.5f, 0.0f),
                       new Vector3(3.5f, 3.5f, 0.0f) };
     BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
-    SpatialPartitioner<Vector3> sp = new SpatialPartitioner<Vector3>(
-        divisionUnit, screenWidth, screenHeight, maxEntity);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
 
     BComponent<int>[
       ,
@@ -46,6 +46,27 @@ public class SpatialPartitionerTests {
     Assert.AreEqual(2, indeces[2, 2].Data[0]);
     Assert.AreEqual(3, indeces[2, 2].Data[1]);
     Assert.AreEqual(4, indeces[3, 3].Data[0]);
+  }
+
+  [Test]
+  public void MallocSpaceDimensionTest() {
+    float divisionUnit = 1.0f;
+    float screenWidth = 19.2f;
+    float screenHeight = 10.8f;
+    int maxEntity = 10;
+    Vector3[] vec = { new Vector3(0.0f, 0.0f, 0.0f),
+                      new Vector3(1.0f, 1.0f, 0.0f),
+                      new Vector3(2.0f, 2.0f, 0.0f),
+                      new Vector3(2.5f, 2.5f, 0.0f),
+                      new Vector3(3.5f, 3.5f, 0.0f) };
+    BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
+    BComponent<Vector3>[
+      ,
+    ] ret = sp.MallocSpace<Vector3>();
+    Assert.AreEqual(20, ret.GetLength(0), "Row doesn't match as expected");
+    Assert.AreEqual(11, ret.GetLength(1), "Column doesn't match as expected");
   }
   [Test]
   public void PartitionDimensionTest() {
@@ -59,8 +80,8 @@ public class SpatialPartitionerTests {
                       new Vector3(2.5f, 2.5f, 0.0f),
                       new Vector3(3.5f, 3.5f, 0.0f) };
     BComponent<Vector3> sample = new BComponent<Vector3>(vec, 3);
-    SpatialPartitioner<Vector3> sp = new SpatialPartitioner<Vector3>(
-        divisionUnit, screenWidth, screenHeight, maxEntity);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
 
     BComponent<Vector3>[
       ,
@@ -87,14 +108,14 @@ public class SpatialPartitionerTests {
                       new Vector3(2.5f, 2.5f, 0.0f),
                       new Vector3(3.5f, 3.5f, 0.0f) };
     BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
-    SpatialPartitioner<Vector3> sp = new SpatialPartitioner<Vector3>(
-        divisionUnit, screenWidth, screenHeight, maxEntity);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
 
     BComponent<Vector3>[
       ,
     ] ret = sp.MallocSpace<Vector3>();
     sp.UpdateIndex(sample);
-    ret = sp.Partition(sample, ret);
+    sp.Partition(sample, ret);
 
     for (int row = 0; row < 20; row++) {
       for (int col = 0; col < 11; col++) {
@@ -121,8 +142,8 @@ public class SpatialPartitionerTests {
                       new Vector3(2.5f, 2.5f, 0.0f),
                       new Vector3(3.5f, 3.5f, 0.0f) };
     BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
-    SpatialPartitioner<Vector3> sp = new SpatialPartitioner<Vector3>(
-        divisionUnit, screenWidth, screenHeight, maxEntity);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
 
     BComponent<Vector3>[
       ,
@@ -153,8 +174,8 @@ public class SpatialPartitionerTests {
                       new Vector3(2.5f, 2.5f, 0.0f),
                       new Vector3(3.5f, 3.5f, 0.0f) };
     BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
-    SpatialPartitioner<Vector3> sp = new SpatialPartitioner<Vector3>(
-        divisionUnit, screenWidth, screenHeight, maxEntity);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
 
     BComponent<Vector3>[
       ,
@@ -166,5 +187,62 @@ public class SpatialPartitionerTests {
     ret[0, 0].Data[0] = mutation;
     sp.Write(ret, sample);
     Assert.AreEqual(mutation, sample.Data[0]);
+  }
+  [Test]
+  public void ResetIndexTest() {
+    float divisionUnit = 1.0f;
+    float screenWidth = 19.2f;
+    float screenHeight = 10.8f;
+    int maxEntity = 10;
+    Vector3[] vec = { new Vector3(0.0f, 0.0f, 0.0f),
+                      new Vector3(1.0f, 1.0f, 0.0f),
+                      new Vector3(2.0f, 2.0f, 0.0f),
+                      new Vector3(2.5f, 2.5f, 0.0f),
+                      new Vector3(3.5f, 3.5f, 0.0f) };
+    BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
+
+    BComponent<Vector3>[
+      ,
+    ] ret = sp.MallocSpace<Vector3>();
+    sp.UpdateIndex(sample);
+    ret = sp.Partition(sample, ret);
+    BComponent<int>[
+      ,
+    ] indeces = sp.ResetIndex();
+    for (int row = 0; row < 20; row++) {
+      for (int col = 0; col < 11; col++) {
+        Assert.AreEqual(0, indeces[row, col].Length);
+      }
+    }
+  }
+  [Test]
+  public void UpdateSize() {
+
+    float divisionUnit = 1.0f;
+    float screenWidth = 19.2f;
+    float screenHeight = 10.8f;
+    int maxEntity = 10;
+    Vector3[] vec = { new Vector3(0.0f, 0.0f, 0.0f),
+                      new Vector3(1.0f, 1.0f, 0.0f),
+                      new Vector3(2.0f, 2.0f, 0.0f),
+                      new Vector3(2.5f, 2.5f, 0.0f),
+                      new Vector3(3.5f, 3.5f, 0.0f) };
+    BComponent<Vector3> sample = new BComponent<Vector3>(vec, 5);
+    BComponent<Vector3> newSample = new BComponent<Vector3>(new Vector3[5], 5);
+    SpatialPartitioner sp = new SpatialPartitioner(divisionUnit, screenWidth,
+                                                   screenHeight, maxEntity);
+
+    BComponent<Vector3>[
+      ,
+    ] ret = sp.MallocSpace<Vector3>();
+    sp.UpdateIndex(sample);
+
+    sp.Resize<Vector3>(ret);
+    ret[0, 0].Length = 1;
+    ret[1, 1].Length = 1;
+    ret[2, 2].Length = 2;
+    ret[3, 3].Length = 1;
   }
 }

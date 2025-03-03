@@ -487,12 +487,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 6687706912903739600, guid: 7c73f95195e61491d8e6bc0e76301fc0, type: 3}
-  numBoids: 50
+  numBoids: 40
   speed: 1
-  detectionDistance: 5
+  detectionDistance: 2
   coheranceFactor: 1
   alignmentFactor: 1
-  avoidanceFactor: 1
+  avoidanceFactor: 1.1
   SCREEN_WIDTH: 19.2
   SCREEN_HEIGHT: 10.8
   numJumpFrame: 5

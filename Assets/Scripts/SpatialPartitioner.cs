@@ -2,13 +2,12 @@ using UnityEngine;
 using Boids;
 
 namespace BOptimizer {
-public class SpatialPartitioner<T> {
+public class SpatialPartitioner {
   public float SpaceUnit { get; private set; }
   public float ScreenWidth { get; private set; }
   public float ScreenHeight { get; private set; }
   public int SpaceMaxEntity {
-    get; private set;
-  } /// How much unit can one space occupy
+      get; private set; } /// How much unit can one space occupy
 
   public int MaxRowIndex {
     get { return (int)(ScreenWidth / SpaceUnit); }
@@ -51,16 +50,6 @@ public class SpatialPartitioner<T> {
 
   public BComponent<int>[
     ,
-  ] ResetIndex() {
-    for (int row = 0; row <= MaxRowIndex; row++) {
-      for (int col = 0; col <= MaxColIndex; col++) {
-        indexMap[row, col].Length = 0;
-      }
-    }
-    return indexMap;
-  }
-  public BComponent<int>[
-    ,
   ] UpdateIndex(BComponent<Vector3> positions) {
     for (int i = 0; i < positions.Length; i++) {
       int row = (int)(positions.Data[i].x / SpaceUnit);
@@ -72,14 +61,26 @@ public class SpatialPartitioner<T> {
     return indexMap;
   }
 
+  public BComponent<int>[
+    ,
+  ] ResetIndex() {
+    for (int row = 0; row <= MaxRowIndex; row++) {
+      for (int col = 0; col <= MaxColIndex; col++) {
+        indexMap[row, col].Length = 0;
+      }
+    }
+    return indexMap;
+  }
+
+  /// Maps data to the partitioned data using computed indeces
   public BComponent<T>[
     ,
-  ] Partition(BComponent<T> data,
-              BComponent<T>[
-                ,
-              ] output) {
-    for (int row = 0; row < MaxRowIndex; row++) {
-      for (int col = 0; col < MaxColIndex; col++) {
+  ] Partition<T>(BComponent<T> data,
+                 BComponent<T>[
+                   ,
+                 ] output) {
+    for (int row = 0; row <= MaxRowIndex; row++) {
+      for (int col = 0; col <= MaxColIndex; col++) {
         output[row, col].Length = indexMap[row, col].Length;
         for (int i = 0; i < output[row, col].Length; i++) {
           output[row, col].Data[i] = data.Data[indexMap[row, col].Data[i]];
@@ -89,7 +90,8 @@ public class SpatialPartitioner<T> {
     return output;
   }
 
-  public void Write(
+  /// Writes the partitioned data back to the original data
+  public void Write<T>(
       BComponent<T>[
         ,
       ] writeFrom,
@@ -100,6 +102,16 @@ public class SpatialPartitioner<T> {
           writeTo.Data[indexMap[row, col].Data[i]] =
               writeFrom[row, col].Data[i];
         }
+      }
+    }
+  }
+
+  public void Resize<T>(BComponent<T>[
+    ,
+  ] component) {
+    for (int row = 0; row <= MaxRowIndex; row++) {
+      for (int col = 0; col <= MaxColIndex; col++) {
+        component[row, col].Length = indexMap[row, col].Length;
       }
     }
   }

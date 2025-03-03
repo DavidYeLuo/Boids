@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Boids;
+using BOptimizer;
 
 namespace Playground {
 public class ECSPrototype : MonoBehaviour {
@@ -28,6 +29,27 @@ public class ECSPrototype : MonoBehaviour {
   private BComponent<Vector3> coherance;
   private BComponent<Vector3> alignment;
   private BComponent<Vector3> avoidance;
+  private BComponent<Vector3>[
+    ,
+  ] partitionedPositions;
+  private BComponent<Vector3>[
+    ,
+  ] partitionedVelocities;
+  private BComponent<float>[
+    ,
+  ] partitionedAngles;
+  private BComponent<Vector3>[
+    ,
+  ] partitionedCoherance;
+  private BComponent<Vector3>[
+    ,
+  ] partitionedAlignment;
+  private BComponent<Vector3>[
+    ,
+  ] partitionedAvoidance;
+
+  /// Spatial Partitioner
+  private SpatialPartitioner spatialPartitioner;
 
   [SerializeField]
   int numJumpFrame;
@@ -44,6 +66,14 @@ public class ECSPrototype : MonoBehaviour {
     for (int i = 0; i < numBoids; i++) {
       boids.Add(Instantiate(boidPrefab));
     }
+    spatialPartitioner = new SpatialPartitioner(detectionDistance, SCREEN_WIDTH,
+                                                SCREEN_HEIGHT, numBoids);
+    partitionedPositions = spatialPartitioner.MallocSpace<Vector3>();
+    partitionedVelocities = spatialPartitioner.MallocSpace<Vector3>();
+    partitionedAngles = spatialPartitioner.MallocSpace<float>();
+    partitionedCoherance = spatialPartitioner.MallocSpace<Vector3>();
+    partitionedAlignment = spatialPartitioner.MallocSpace<Vector3>();
+    partitionedAvoidance = spatialPartitioner.MallocSpace<Vector3>();
 
     /// We're using (0, SCREEN_WIDTH), (0, SCREEN_HEIGHT)
     /// because the Mathf.Repeat only works on positive numbers.
@@ -61,19 +91,53 @@ public class ECSPrototype : MonoBehaviour {
     }
   }
   private void FixedUpdate() {
-    /// Calculates direction
-    BoidsMath.GetAvoidanceVector(positions, avoidance);
-    BoidsMath.GetCoheranceVector(positions, coherance);
-    BoidsMath.GetAlignmentVector(velocities, alignment);
-    BoidsMath.Normalize(avoidance, avoidance);
-    BoidsMath.Normalize(coherance, coherance);
-    BoidsMath.Normalize(alignment, alignment);
-    BoidsMath.Scale(avoidanceFactor, avoidance, avoidance);
-    BoidsMath.Scale(coheranceFactor, coherance, coherance);
-    BoidsMath.Scale(alignmentFactor, alignment, alignment);
-    BoidsMath.Sum(avoidance, coherance, velocities);
-    BoidsMath.Sum(velocities, alignment, velocities);
-    BoidsMath.Normalize(velocities, velocities);
+    spatialPartitioner.ResetIndex();
+    spatialPartitioner.UpdateIndex(positions);
+
+    spatialPartitioner.Resize<Vector3>(partitionedPositions);
+    spatialPartitioner.Resize<Vector3>(partitionedVelocities);
+    spatialPartitioner.Resize<float>(partitionedAngles);
+    spatialPartitioner.Resize<Vector3>(partitionedAlignment);
+    spatialPartitioner.Resize<Vector3>(partitionedAvoidance);
+    spatialPartitioner.Resize<Vector3>(partitionedCoherance);
+
+    spatialPartitioner.Partition(positions, partitionedPositions);
+    spatialPartitioner.Partition(velocities, partitionedVelocities);
+
+    for (int row = 0; row <= spatialPartitioner.MaxRowIndex; row++) {
+      for (int col = 0; col <= spatialPartitioner.MaxColIndex; col++) {
+        BoidsMath.GetAvoidanceVector(partitionedPositions[row, col],
+                                     partitionedAvoidance[row, col]);
+        BoidsMath.GetCoheranceVector(partitionedPositions[row, col],
+                                     partitionedCoherance[row, col]);
+        BoidsMath.GetAlignmentVector(partitionedVelocities[row, col],
+                                     partitionedAlignment[row, col]);
+        BoidsMath.Normalize(partitionedAvoidance[row, col],
+                            partitionedAvoidance[row, col]);
+        BoidsMath.Normalize(partitionedCoherance[row, col],
+                            partitionedCoherance[row, col]);
+        BoidsMath.Normalize(partitionedAlignment[row, col],
+                            partitionedAlignment[row, col]);
+        BoidsMath.Scale(avoidanceFactor, partitionedAvoidance[row, col],
+                        partitionedAvoidance[row, col]);
+        BoidsMath.Scale(coheranceFactor, partitionedCoherance[row, col],
+                        partitionedCoherance[row, col]);
+        BoidsMath.Scale(alignmentFactor, partitionedAlignment[row, col],
+                        partitionedAlignment[row, col]);
+        BoidsMath.Sum(partitionedVelocities[row, col],
+                      partitionedCoherance[row, col],
+                      partitionedVelocities[row, col]);
+        BoidsMath.Sum(partitionedVelocities[row, col],
+                      partitionedAlignment[row, col],
+                      partitionedVelocities[row, col]);
+        BoidsMath.Sum(partitionedVelocities[row, col],
+                      partitionedAvoidance[row, col],
+                      partitionedVelocities[row, col]);
+        BoidsMath.Normalize(partitionedVelocities[row, col],
+                            partitionedVelocities[row, col]);
+      }
+    }
+    spatialPartitioner.Write(partitionedVelocities, velocities);
 
     /// scale the unit vector by speed
     BoidsMath.Scale(speed * Time.deltaTime, velocities, velocities);
